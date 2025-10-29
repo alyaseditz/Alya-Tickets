@@ -660,7 +660,14 @@
     
     // Global Firebase Variables (MUST BE USED)
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+    // Ensure we handle potential stringification/parsing issues
+    let firebaseConfig = {};
+    try {
+        firebaseConfig = typeof __firebase_config !== 'undefined' && __firebase_config ? JSON.parse(__firebase_config) : {};
+    } catch (e) {
+        console.error("Error parsing __firebase_config:", e);
+        // firebaseConfig remains {}
+    }
     const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
     let db, auth;
@@ -677,7 +684,7 @@
     const noTicketsMessage = document.getElementById('no-tickets-message');
     
     // Admin
-    const adminSection = document.getElementById('admin-section'); // FIX: Added missing DOM element definition
+    const adminSection = document.getElementById('admin-section'); // Fixed: defined missing element
     const adminToggleBtn = document.getElementById('admin-toggle-btn');
     const adminStatusSpan = document.getElementById('admin-status');
     const adminTools = document.getElementById('admin-tools');
@@ -716,17 +723,30 @@
     const TICKET_COLLECTION_PATH = `artifacts/${appId}/public/data/tickets`;
 
     async function initializeFirebase() {
+        // Check for essential config before initialization
+        if (!firebaseConfig || !firebaseConfig.apiKey || !firebaseConfig.projectId) {
+            console.error("Firebase Initialization Error: Configuration is missing API Key or Project ID.", firebaseConfig);
+            showMessage("Database config missing. Cannot connect to Firebase.", 'danger');
+            noTicketsMessage.textContent = 'ERROR: Firebase configuration missing required credentials.';
+            return; 
+        }
+
         try {
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
             
             // Authentication
-            if (initialAuthToken) {
-                await signInWithCustomToken(auth, initialAuthToken);
-            } else {
-                await signInAnonymously(auth);
-            }
+            const signInAttempt = initialAuthToken 
+                ? signInWithCustomToken(auth, initialAuthToken)
+                : signInAnonymously(auth);
+
+            await signInAttempt.catch(authError => {
+                console.warn("Initial authentication failed, attempting anonymous fallback...", authError);
+                // Even if custom token fails, onAuthStateChanged should catch anonymous sign-in if it succeeded.
+                return signInAnonymously(auth);
+            });
+
 
             onAuthStateChanged(auth, (user) => {
                 if (user) {
@@ -741,9 +761,9 @@
             });
 
         } catch (error) {
-            console.error("Firebase Initialization Error:", error);
-            showMessage("Failed to connect to the database.", 'danger');
-            noTicketsMessage.textContent = 'ERROR: Database connection failed.';
+            console.error("Firebase Initialization Error (App or Firestore):", error);
+            showMessage("Failed to connect to the database. Check console for details.", 'danger');
+            noTicketsMessage.textContent = 'ERROR: Database connection failed. See console.';
         }
     }
     
