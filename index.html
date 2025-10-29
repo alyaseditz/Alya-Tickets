@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 Real-Time Anime Edits Ticket System</title>
+    <style>
+        :root {
+            --primary-color: #5d50f5; /* Anime/Future Purple */
+            --secondary-color: #ff479d; /* Accent Pink */
+            --bg-color: #1a1a2e; /* Dark Blue-Black */
+            --card-bg: #2c2c44; /* Slightly lighter card background */
+            --text-color: #f0f0f0;
+            --light-text: #c0c0c0;
+            --border-color: #404066;
+            --font-stack: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --status-open: #4caf50;
+            --status-progress: #ff9800;
+            --status-done: #2196f3;
+            --status-denied: #f44336;
+        }
+
+        /* Base & Typography */
+        body {
+            font-family: var(--font-stack);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        h1, h2 {
+            color: var(--secondary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        /* Utilities */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .button {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .button:active {
+            transform: scale(0.98);
+        }
+
+        .button:hover {
+            background-color: #7a6bff;
+        }
+
+        .button.secondary {
+            background-color: var(--secondary-color);
+        }
+
+        .button.secondary:hover {
+            background-color: #ff6aae;
+        }
+
+        .button.danger {
+            background-color: var(--status-denied);
+        }
+
+        .button.danger:hover {
+            background-color: #ff6666;
+        }
+
+        /* Form Styling */
+        #submission-form {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--light-text);
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="file"],
+        select,
+        textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        #image-preview {
+            max-width: 100px;
+            max-height: 100px;
+            margin-top: 10px;
+            border-radius: 4px;
+            display: none;
+            object-fit: cover;
+        }
+
+        /* Admin & Management */
+        #admin-controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #242438;
+        }
+        
+        #admin-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #admin-status {
+            font-weight: bold;
+            color: var(--status-denied);
+        }
+
+        .admin-active #admin-status {
+            color: var(--status-open);
+        }
+
+        #admin-tools {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .admin-tools-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Filter & Sort */
+        #ticket-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        #ticket-controls div {
+            flex-grow: 1;
+            min-width: 150px;
+        }
+        
+        #ticket-controls select, #ticket-controls input {
+            width: 100%;
+        }
+
+        /* Ticket List */
+        #ticket-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding-top: 10px;
+        }
+
+        .ticket-card {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border-left: 5px solid var(--primary-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .ticket-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .ticket-id {
+            font-size: 0.8em;
+            color: var(--light-text);
+        }
+
+        .ticket-title {
+            font-size: 1.2em;
+            color: var(--secondary-color);
+            margin: 5px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .ticket-meta-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            color: var(--light-text);
+            margin-bottom: 5px;
+        }
+
+        .ticket-description-snippet {
+            font-size: 0.9em;
+            color: var(--light-text);
+            margin-top: 10px;
+            flex-grow: 1;
+        }
+
+        .ticket-thumbnail-container {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+            overflow: hidden;
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+        
+        .ticket-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .ticket-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85em;
+            text-transform: capitalize;
+            color: var(--bg-color);
+        }
+
+        /* Status Colors */
+        .status-Open { background-color: var(--status-open); }
+        .status-InProgress { background-color: var(--status-progress); }
+        .status-Done { background-color: var(--status-done); }
+        .status-Denied { background-color: var(--status-denied); }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        
+        .modal.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            width: 600px;
+            transform: scale(0.95);
+            transition: transform 0.3s;
+        }
+        
+        .modal-content.small {
+            width: 400px;
+            max-width: 90%;
+        }
+        
+        .modal.visible .modal-content {
+            transform: scale(1);
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--light-text);
+            cursor: pointer;
+            line-height: 1;
+            padding: 5px;
+        }
+
+        .close-button:hover {
+            color: var(--secondary-color);
+        }
+
+        #detail-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+
+        .detail-group {
+            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: baseline;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: var(--secondary-color);
+            min-width: 100px;
+            flex-shrink: 0;
+        }
+        
+        /* Reply Styling */
+        .reply-item {
+            background-color: #38385e; /* Reply background */
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .reply-meta {
+            font-size: 0.8em;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+            font-weight: bold;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 3px;
+        }
+
+        .reply-text {
+            white-space: pre-wrap;
+            font-size: 0.95em;
+        }
+
+        /* Message Box */
+        #message-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 0;
+            }
+
+            #ticket-controls {
+                flex-direction: column;
+            }
+
+            #ticket-controls div {
+                min-width: 100%;
+            }
+
+            .modal-content {
+                width: auto;
+                margin: 10px;
+            }
+            
+            #admin-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .admin-tools-actions {
+                flex-direction: column;
+            }
+            
+            .admin-tools-actions .button {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Custom Message Box -->
+<div id="message-box" role="status" aria-live="polite"></div>
+
+<div class="container">
+    <header>
+        <h1>🎬 Real-Time Anime Edits Channel Ticket System</h1>
+        <p style="color: var(--light-text); font-style: italic;">
+            Data is saved to the cloud (Firebase) and synchronizes instantly across all your devices.
+        </p>
+    </header>
+    
+    <!-- Admin Controls Section -->
+    <section id="admin-section">
+        <div id="admin-controls">
+            <div id="admin-info">
+                <span id="admin-status">Not Admin</span>
+                <button id="admin-toggle-btn" class="button">Log In as Admin</button>
+                <span id="user-id-display" style="font-size: 0.8em;">User ID: Loading...</span>
+            </div>
+            <div id="admin-tools" class="hidden">
+                <hr>
+                <h3>Admin Tools</h3>
+                <p style="color: var(--status-denied);">
+                    Note: Import/Export/Clear are disabled in this cloud version to prevent data conflicts.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Submission Form -->
+    <section>
+        <h2>Submit a New Ticket</h2>
+        <form id="submission-form">
+            <div class="form-group">
+                <label for="name">Name / Handle:</label>
+                <input type="text" id="name" required aria-label="Name or Handle">
+            </div>
+            <div class="form-group">
+                <label for="contact">Contact (Facebook Handle or Link):</label>
+                <input type="text" id="contact" required aria-label="Contact Information">
+            </div>
+            <div class="form-group">
+                <label for="type">Ticket Type:</label>
+                <select id="type" required aria-label="Ticket Type">
+                    <option value="Edit Request">Edit Request</option>
+                    <option value="Collaboration">Collaboration</option>
+                    <option value="General Question">General Question</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="title">Title:</label>
+                <input type="text" id="title" required aria-label="Ticket Title">
+            </div>
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" required aria-label="Ticket Description"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="image">Optional Image/Thumbnail (Base64):</label>
+                <input type="file" id="image" accept="image/*" aria-label="Optional Image Upload">
+                <img id="image-preview" src="#" alt="Image Preview">
+            </div>
+            <button type="submit" class="button">Submit Ticket</button>
+        </form>
+    </section>
+
+    <hr style="border-color: var(--border-color); margin: 30px 0;">
+
+    <!-- Ticket View & Controls -->
+    <section>
+        <h2>Submitted Tickets</h2>
+        <div id="ticket-controls">
+            <div>
+                <label for="filter-status" class="hidden">Filter by Status</label>
+                <select id="filter-status" aria-label="Filter by Status">
+                    <option value="All">Filter by Status: All</option>
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Done">Done</option>
+                    <option value="Denied">Denied</option>
+                </select>
+            </div>
+            <div>
+                <label for="filter-type" class="hidden">Filter by Type</label>
+                <select id="filter-type" aria-label="Filter by Type">
+                    <option value="All">Filter by Type: All</option>
+                    <option value="Edit Request">Edit Request</option>
+                    <option value="Collaboration">Collaboration</option>
+                    <option value="General Question">General Question</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div>
+                <label for="sort-by" class="hidden">Sort By</label>
+                <select id="sort-by" aria-label="Sort Tickets By">
+                    <option value="newest">Sort By: Newest</option>
+                    <option value="oldest">Sort By: Oldest</option>
+                    <option value="status">Sort By: Status</option>
+                </select>
+            </div>
+            <div>
+                <label for="search-query" class="hidden">Search</label>
+                <input type="text" id="search-query" placeholder="Search by Title or Submitter" aria-label="Search by Title or Submitter">
+            </div>
+        </div>
+
+        <div id="ticket-list">
+            <p id="no-tickets-message" style="grid-column: 1 / -1; text-align: center; color: var(--light-text);">Loading tickets...</p>
+        </div>
+    </section>
+
+</div>
+
+<!-- Ticket Detail Modal (Hidden by default) -->
+<div id="ticket-detail-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-content">
+        <span class="close-button detail-close" aria-label="Close Modal">&times;</span>
+        <h2 id="modal-title">Ticket Details</h2>
+        <div class="detail-group"><span class="detail-label">ID:</span> <span id="detail-id"></span></div>
+        <div class="detail-group"><span class="detail-label">Status:</span> <span id="detail-status" class="ticket-status"></span></div>
+        <div class="detail-group"><span class="detail-label">Title:</span> <span id="detail-title"></span></div>
+        <div class="detail-group"><span class="detail-label">Type:</span> <span id="detail-type"></span></div>
+        <div class="detail-group"><span class="detail-label">Submitter:</span> <span id="detail-submitter"></span></div>
+        <div class="detail-group"><span class="detail-label">Contact:</span> <a id="detail-contact" href="#" target="_blank" style="color: var(--secondary-color);"></a></div>
+        <div class="detail-group"><span class="detail-label">Submitted:</span> <span id="detail-date"></span></div>
+        
+        <hr style="border-color: var(--border-color); margin: 15px 0;">
+
+        <h3>Full Description</h3>
+        <p id="detail-description" style="white-space: pre-wrap;"></p>
+        
+        <div id="detail-image-container" class="hidden">
+            <h3>Thumbnail Preview</h3>
+            <img id="detail-image" src="#" alt="Ticket Thumbnail">
+        </div>
+
+        <!-- Replies Section -->
+        <div id="replies-section">
+            <hr style="border-color: var(--border-color); margin: 15px 0;">
+            <h3 style="color: var(--status-done);">Admin Replies</h3>
+            <div id="detail-replies-list" style="max-height: 200px; overflow-y: auto; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; margin-bottom: 15px; background-color: #151525;">
+                <!-- Replies will be inserted here -->
+                <p id="no-replies-msg" style="color: var(--light-text); text-align: center;">No replies yet.</p>
+            </div>
+
+            <!-- Admin Reply Form (Hidden until admin logs in) -->
+            <div id="admin-reply-form-container" class="hidden">
+                <hr style="border-color: var(--border-color); margin: 15px 0;">
+                <h3 style="color: var(--primary-color);">Send a Reply</h3>
+                <textarea id="reply-input" placeholder="Type your reply here..." style="width: 100%; min-height: 80px; margin-bottom: 10px; padding: 10px; border-radius: 5px; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-color); box-sizing: border-box;"></textarea>
+                <button id="send-reply-btn" class="button secondary" style="width: 100%;">Send Reply</button>
+            </div>
+        </div>
+        
+        <!-- Admin-only controls in modal -->
+        <div id="detail-admin-controls" class="hidden">
+            <hr style="border-color: var(--border-color); margin: 15px 0;">
+            <h3>Admin Actions</h3>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                <label for="detail-status-change" class="hidden">Change Status</label>
+                <select id="detail-status-change" aria-label="Change Ticket Status" style="padding: 10px; flex-grow: 1; max-width: 150px;">
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Done">Done</option>
+                    <option value="Denied">Denied</option>
+                </select>
+                <button id="detail-save-status-btn" class="button" style="flex-grow: 1;">Save Status</button>
+                <button id="detail-delete-btn" class="button danger" style="flex-grow: 1;">Delete Ticket</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Admin Password Modal -->
+<div id="password-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="password-title">
+    <div class="modal-content small">
+        <span class="close-button password-close" aria-label="Close Modal">&times;</span>
+        <h2 id="password-title">Admin Login</h2>
+        <p>Enter the administrator password:</p>
+        <div class="form-group">
+            <input type="password" id="password-input" placeholder="Password" aria-label="Admin Password" required>
+        </div>
+        <button id="password-submit-btn" class="button" style="width: 100%;">Log In</button>
+    </div>
+</div>
+
+<!-- Generic Confirmation Modal -->
+<div id="confirm-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="modal-content small">
+        <h2 id="confirm-title">Confirmation Required</h2>
+        <p id="confirm-message"></p>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button id="confirm-cancel-btn" class="button secondary">Cancel</button>
+            <button id="confirm-ok-btn" class="button danger">Confirm Action</button>
+        </div>
+    </div>
+</div>
+
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+
+    // --- Configuration & Initialization ---
+    setLogLevel('Debug');
+    const ADMIN_PASSWORD = 'anime'; 
+    
+    // Global Firebase Variables (MUST BE USED)
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+    let db, auth;
+    let userId = null;
+    let isAdmin = false;
+    let currentTicketId = null; // Stores the ID of the ticket currently open in the modal
+    let globalConfirmCallback = null;
+
+    // --- DOM Elements ---
+    const form = document.getElementById('submission-form');
+    const imageInput = document.getElementById('image');
+    const imagePreview = document.getElementById('image-preview');
+    const ticketList = document.getElementById('ticket-list');
+    const noTicketsMessage = document.getElementById('no-tickets-message');
+    
+    // Admin
+    const adminSection = document.getElementById('admin-section'); // FIX: Added missing DOM element definition
+    const adminToggleBtn = document.getElementById('admin-toggle-btn');
+    const adminStatusSpan = document.getElementById('admin-status');
+    const adminTools = document.getElementById('admin-tools');
+    const userIdDisplay = document.getElementById('user-id-display');
+    
+    // Filters/Sort
+    const filterStatusSelect = document.getElementById('filter-status');
+    const filterTypeSelect = document.getElementById('filter-type');
+    const sortBySelect = document.getElementById('sort-by');
+    const searchInput = document.getElementById('search-query');
+
+    // Modal
+    const detailModal = document.getElementById('ticket-detail-modal');
+    const detailModalCloseBtn = detailModal.querySelector('.detail-close');
+    const detailAdminControls = document.getElementById('detail-admin-controls');
+    const detailRepliesList = document.getElementById('detail-replies-list');
+    const noRepliesMsg = document.getElementById('no-replies-msg');
+    const replyInput = document.getElementById('reply-input');
+    const sendReplyBtn = document.getElementById('send-reply-btn');
+    const adminReplyFormContainer = document.getElementById('admin-reply-form-container');
+    
+    // Password & Confirmation Modal elements (omitted for brevity, assume they exist)
+    const passwordModal = document.getElementById('password-modal');
+    const passwordInput = document.getElementById('password-input');
+    const passwordSubmitBtn = document.getElementById('password-submit-btn');
+    const confirmModal = document.getElementById('confirm-modal');
+    const confirmMessage = document.getElementById('confirm-message');
+    const confirmOkBtn = document.getElementById('confirm-ok-btn');
+    const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+    const messageBox = document.getElementById('message-box');
+    let messageTimer = null;
+
+
+    // --- Core Firebase Setup ---
+
+    const TICKET_COLLECTION_PATH = `artifacts/${appId}/public/data/tickets`;
+
+    async function initializeFirebase() {
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            
+            // Authentication
+            if (initialAuthToken) {
+                await signInWithCustomToken(auth, initialAuthToken);
+            } else {
+                await signInAnonymously(auth);
+            }
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    userId = user.uid;
+                    userIdDisplay.textContent = `User ID: ${userId.substring(0, 8)}...`;
+                    setupRealTimeListener();
+                } else {
+                    userId = null;
+                    userIdDisplay.textContent = 'User ID: N/A';
+                    noTicketsMessage.textContent = 'Please wait for authentication...';
+                }
+            });
+
+        } catch (error) {
+            console.error("Firebase Initialization Error:", error);
+            showMessage("Failed to connect to the database.", 'danger');
+            noTicketsMessage.textContent = 'ERROR: Database connection failed.';
+        }
+    }
+    
+    // --- Helper Functions ---
+
+    function showMessage(text, type = 'primary') {
+        clearTimeout(messageTimer);
+        messageBox.textContent = text;
+        messageBox.style.backgroundColor = {
+            'primary': '#333',
+            'danger': 'var(--status-denied)',
+            'success': 'var(--status-open)'
+        }[type] || '#333';
+        
+        messageBox.style.display = 'block';
+        setTimeout(() => messageBox.style.opacity = 1, 10);
+        
+        messageTimer = setTimeout(() => {
+            messageBox.style.opacity = 0;
+            setTimeout(() => messageBox.style.display = 'none', 300);
+        }, 4000);
+    }
+    
+    function customConfirm(message, callback) {
+        confirmMessage.textContent = message;
+        globalConfirmCallback = callback;
+        confirmModal.classList.add('visible');
+    }
+    
+    function truncateText(text, limit) {
+        if (!text) return '';
+        return text.length > limit ? text.substring(0, limit) + '...' : text;
+    }
+
+    // --- Admin Functions ---
+
+    function toggleAdminMode(enable) {
+        isAdmin = enable;
+        if (!isAdmin && auth.currentUser) {
+            // Clear any admin-specific data or flags if needed
+        }
+        adminSection.classList.toggle('admin-active', isAdmin);
+        adminStatusSpan.textContent = isAdmin ? 'ADMIN MODE ACTIVE' : 'Not Admin';
+        adminToggleBtn.textContent = isAdmin ? 'Log Out Admin' : 'Log In as Admin';
+        adminTools.classList.toggle('hidden', !isAdmin);
+        
+        // If the detail modal is open, re-render controls
+        if (detailModal.classList.contains('visible') && currentTicketId) {
+            const currentTickets = window.ticketsCache || [];
+            const ticket = currentTickets.find(t => t.id === currentTicketId);
+            if (ticket) showTicketDetail(ticket); // Re-show to update controls
+        }
+    }
+
+    async function handleAdminLogout() {
+        try {
+            await signOut(auth);
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
+        toggleAdminMode(false);
+        showMessage('Admin mode deactivated.', 'success');
+    }
+
+    function checkAdminPassword() {
+        if (isAdmin) {
+            handleAdminLogout();
+            return;
+        }
+        passwordInput.value = '';
+        passwordModal.classList.add('visible');
+        passwordInput.focus();
+    }
+    
+    function handlePasswordSubmit() {
+        const input = passwordInput.value;
+        passwordModal.classList.remove('visible');
+
+        if (input === ADMIN_PASSWORD) {
+            toggleAdminMode(true);
+            showMessage('Admin mode activated.', 'success');
+        } else {
+            showMessage('Incorrect password. Access denied.', 'danger');
+        }
+    }
+    
+    // --- Firestore Operations ---
+
+    // Function to submit a new ticket
+    async function submitNewTicket(ticketData) {
+        if (!userId) return showMessage('User not authenticated. Please wait.', 'danger');
+        try {
+            const ticketsCol = collection(db, TICKET_COLLECTION_PATH);
+            await addDoc(ticketsCol, ticketData);
+            showMessage(`Ticket submitted successfully!`, 'success');
+            form.reset();
+            imagePreview.style.display = 'none';
+        } catch (e) {
+            console.error("Error submitting ticket:", e);
+            showMessage("Failed to submit ticket. See console for details.", 'danger');
+        }
+    }
+
+    // Function to update ticket status
+    async function updateTicketStatus(docId, newStatus) {
+        if (!isAdmin) return showMessage('Permission denied.', 'danger');
+        try {
+            const ticketRef = doc(db, TICKET_COLLECTION_PATH, docId);
+            await updateDoc(ticketRef, { status: newStatus });
+            showMessage(`Ticket status updated to ${newStatus}.`, 'success');
+        } catch (e) {
+            console.error("Error updating status:", e);
+            showMessage("Failed to update status.", 'danger');
+        }
+    }
+
+    // Function to delete a ticket
+    async function deleteTicket(docId) {
+        if (!isAdmin) return showMessage('Permission denied.', 'danger');
+        customConfirm(`Are you sure you want to permanently delete Ticket ID: ${docId}?`, async () => {
+            try {
+                const ticketRef = doc(db, TICKET_COLLECTION_PATH, docId);
+                await deleteDoc(ticketRef);
+                hideTicketDetail();
+                showMessage(`Ticket deleted.`, 'success');
+            } catch (e) {
+                console.error("Error deleting ticket:", e);
+                showMessage("Failed to delete ticket.", 'danger');
+            }
+        });
+    }
+
+    // Function to add a reply (Admin only)
+    async function addReplyToTicket(docId) {
+        if (!isAdmin) return showMessage('Permission denied.', 'danger');
+        const replyText = replyInput.value.trim();
+        if (replyText.length === 0) return showMessage('Reply cannot be empty.', 'primary');
+
+        try {
+            const ticketRef = doc(db, TICKET_COLLECTION_PATH, docId);
+            
+            // Get the current ticket data to append the reply
+            const currentTickets = window.ticketsCache || [];
+            const ticket = currentTickets.find(t => t.docId === docId);
+
+            if (ticket) {
+                 const newReply = {
+                    timestamp: new Date().toISOString(),
+                    text: replyText
+                };
+                
+                const updatedReplies = Array.isArray(ticket.replies) ? [...ticket.replies, newReply] : [newReply];
+
+                await updateDoc(ticketRef, { replies: updatedReplies });
+                
+                replyInput.value = '';
+                showMessage(`Reply sent.`, 'success');
+                // The onSnapshot listener will re-render the modal with the new reply
+            } else {
+                 showMessage('Error: Ticket not found in cache.', 'danger');
+            }
+
+        } catch (e) {
+            console.error("Error adding reply:", e);
+            showMessage("Failed to send reply.", 'danger');
+        }
+    }
+
+    // --- Real-Time Listener (Main Data Loop) ---
+
+    function setupRealTimeListener() {
+        if (!db) return;
+        const ticketsCollection = collection(db, TICKET_COLLECTION_PATH);
+        
+        // Since we cannot use orderBy on the collection due to potential index issues,
+        // we fetch all and sort in the client.
+        const q = ticketsCollection; 
+
+        onSnapshot(q, (snapshot) => {
+            const tickets = snapshot.docs.map(doc => ({
+                id: doc.id.substring(0, 4).toUpperCase(), // Use first 4 chars of doc ID as public ID
+                docId: doc.id, // Store full document ID for Firestore operations
+                ...doc.data()
+            }));
+
+            // Store the raw tickets for filtering/sorting and modal lookup
+            window.ticketsCache = tickets;
+            renderTickets(); 
+            
+            // If modal is open, update its content (including replies)
+            if (detailModal.classList.contains('visible') && currentTicketId) {
+                const ticket = tickets.find(t => t.id === currentTicketId);
+                if (ticket) {
+                    showTicketDetail(ticket); 
+                } else {
+                    hideTicketDetail(); // Ticket was deleted
+                }
+            }
+        }, (error) => {
+            console.error("Firestore snapshot error:", error);
+            noTicketsMessage.textContent = 'ERROR: Failed to load tickets in real-time.';
+            showMessage('Real-time updates failed.', 'danger');
+        });
+    }
+
+
+    // --- Render and Display Functions ---
+
+    function createTicketCard(ticket) {
+        const card = document.createElement('div');
+        card.className = 'ticket-card';
+        card.setAttribute('data-id', ticket.docId);
+        card.innerHTML = `
+            <div>
+                <div class="ticket-header">
+                    <span class="ticket-id">ID: #${ticket.id}</span>
+                    <span class="ticket-status status-${ticket.status.replace(/\s/g, '')}">${ticket.status}</span>
+                </div>
+                <h3 class="ticket-title" title="${ticket.title}">${ticket.title}</h3>
+                <div class="ticket-meta-line">
+                    <span>Submitter: <strong>${ticket.name}</strong></span>
+                    <span>Type: ${ticket.type}</span>
+                </div>
+                <div class="ticket-meta-line">
+                    <span>Date: ${new Date(ticket.date).toLocaleDateString()}</span>
+                </div>
+            </div>
+            <div style="display: flex; align-items: flex-start; margin-top: 10px;">
+                <p class="ticket-description-snippet">${truncateText(ticket.description, 80)}</p>
+                ${ticket.image ? `<div class="ticket-thumbnail-container"><img class="ticket-thumbnail" src="${ticket.image}" alt="Thumbnail"></div>` : ''}
+            </div>
+        `;
+        
+        card.addEventListener('click', () => {
+            currentTicketId = ticket.id; // Set ID before showing
+            showTicketDetail(ticket);
+        });
+        return card;
+    }
+
+    function renderTickets() {
+        const tickets = window.ticketsCache || [];
+        
+        // 1. Filtering & Searching
+        const statusFilter = filterStatusSelect.value;
+        const typeFilter = filterTypeSelect.value;
+        const searchQuery = searchInput.value.toLowerCase();
+
+        let filteredTickets = tickets.filter(ticket => {
+            const statusMatch = statusFilter === 'All' || ticket.status === statusFilter;
+            const typeMatch = typeFilter === 'All' || ticket.type === typeFilter;
+            const searchMatch = !searchQuery || 
+                                ticket.title.toLowerCase().includes(searchQuery) || 
+                                ticket.name.toLowerCase().includes(searchQuery);
+            
+            return statusMatch && typeMatch && searchMatch;
+        });
+
+        // 2. Sorting (Client-side)
+        const sortBy = sortBySelect.value;
+        filteredTickets.sort((a, b) => {
+            if (sortBy === 'newest') return new Date(b.date) - new Date(a.date);
+            if (sortBy === 'oldest') return new Date(a.date) - new Date(b.date);
+            if (sortBy === 'status') {
+                const statusOrder = { 'Open': 1, 'In Progress': 2, 'Done': 3, 'Denied': 4 };
+                return statusOrder[a.status] - statusOrder[b.status];
+            }
+            return 0;
+        });
+
+        // 3. Rendering
+        ticketList.innerHTML = '';
+        if (filteredTickets.length === 0) {
+            noTicketsMessage.style.display = 'block';
+            noTicketsMessage.textContent = 'No tickets found matching your criteria.';
+        } else {
+            noTicketsMessage.style.display = 'none';
+            filteredTickets.forEach(ticket => {
+                ticketList.appendChild(createTicketCard(ticket));
+            });
+        }
+    }
+
+    function renderReplies(ticket) {
+        detailRepliesList.innerHTML = '';
+        const replies = ticket.replies || [];
+        noRepliesMsg.style.display = replies.length === 0 ? 'block' : 'none';
+
+        replies.forEach(reply => {
+            const replyDiv = document.createElement('div');
+            replyDiv.className = 'reply-item';
+            replyDiv.innerHTML = `
+                <div class="reply-meta">
+                    Admin @ ${new Date(reply.timestamp).toLocaleString()}
+                </div>
+                <p class="reply-text">${reply.text}</p>
+            `;
+            detailRepliesList.appendChild(replyDiv);
+        });
+        
+        // Scroll to bottom of the replies list
+        detailRepliesList.scrollTop = detailRepliesList.scrollHeight;
+    }
+
+    function showTicketDetail(ticket) {
+        // Set the currently viewed ticket ID (used for re-rendering during real-time updates)
+        currentTicketId = ticket.id; 
+
+        // Populate modal with ticket data
+        document.getElementById('detail-id').textContent = ticket.id;
+        document.getElementById('detail-title').textContent = ticket.title;
+        document.getElementById('detail-type').textContent = ticket.type;
+        document.getElementById('detail-submitter').textContent = ticket.name;
+        document.getElementById('detail-date').textContent = new Date(ticket.date).toLocaleString();
+        document.getElementById('detail-description').textContent = ticket.description;
+        
+        const contactLink = document.getElementById('detail-contact');
+        contactLink.textContent = ticket.contact;
+        const prefix = ticket.contact.toLowerCase().startsWith('http') ? '' : 'https://';
+        contactLink.href = prefix + ticket.contact;
+        
+        const statusSpan = document.getElementById('detail-status');
+        statusSpan.textContent = ticket.status;
+        statusSpan.className = `ticket-status status-${ticket.status.replace(/\s/g, '')}`;
+
+        const imageContainer = document.getElementById('detail-image-container');
+        const imageElement = document.getElementById('detail-image');
+        if (ticket.image) {
+            imageElement.src = ticket.image;
+            imageContainer.classList.remove('hidden');
+        } else {
+            imageContainer.classList.add('hidden');
+            imageElement.src = '#';
+        }
+
+        // RENDER REPLIES
+        renderReplies(ticket);
+
+        // Show/Hide Admin Controls and Reply Form
+        if (isAdmin) {
+            detailAdminControls.classList.remove('hidden');
+            adminReplyFormContainer.classList.remove('hidden');
+
+            const statusSelect = document.getElementById('detail-status-change');
+            statusSelect.value = ticket.status;
+            
+            // Update button handlers for the current ticket's document ID (docId)
+            document.getElementById('detail-save-status-btn').onclick = () => updateTicketStatus(ticket.docId, statusSelect.value);
+            document.getElementById('detail-delete-btn').onclick = () => deleteTicket(ticket.docId);
+            sendReplyBtn.onclick = () => addReplyToTicket(ticket.docId);
+
+        } else {
+            detailAdminControls.classList.add('hidden');
+            adminReplyFormContainer.classList.add('hidden');
+        }
+
+        detailModal.classList.add('visible');
+    }
+
+    function hideTicketDetail() {
+        detailModal.classList.remove('visible');
+        currentTicketId = null; // Clear the context
+        replyInput.value = ''; // Clear reply box
+    }
+
+    // --- Form Submission & Event Listeners ---
+
+    function fileToDataUrl(file) {
+        return new Promise((resolve) => {
+            if (!file) return resolve(null);
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const imageBase64 = await fileToDataUrl(imageInput.files[0]);
+
+        const newTicket = {
+            name: document.getElementById('name').value,
+            contact: document.getElementById('contact').value,
+            type: document.getElementById('type').value,
+            title: document.getElementById('title').value,
+            description: document.getElementById('description').value,
+            image: imageBase64,
+            date: new Date().toISOString(),
+            status: 'Open',
+            replies: [],
+            submitterUid: userId 
+        };
+
+        await submitNewTicket(newTicket);
+    });
+
+    imageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            imagePreview.style.display = 'none';
+        }
+    });
+
+    // Admin Button Handlers
+    adminToggleBtn.addEventListener('click', checkAdminPassword);
+
+    // Password Modal Handlers
+    passwordSubmitBtn.addEventListener('click', handlePasswordSubmit);
+    passwordInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handlePasswordSubmit();
+    });
+    document.querySelector('.password-close').addEventListener('click', () => passwordModal.classList.remove('visible'));
+    
+    // Confirmation Modal Handlers
+    confirmOkBtn.addEventListener('click', () => {
+        confirmModal.classList.remove('visible');
+        if (globalConfirmCallback) globalConfirmCallback();
+    });
+    confirmCancelBtn.addEventListener('click', () => {
+        confirmModal.classList.remove('visible');
+        showMessage('Action cancelled.', 'primary');
+    });
+
+    // Filter/Sort/Search Handlers (Trigger client-side rendering with cached data)
+    filterStatusSelect.addEventListener('change', renderTickets);
+    filterTypeSelect.addEventListener('change', renderTickets);
+    sortBySelect.addEventListener('change', renderTickets);
+    searchInput.addEventListener('input', renderTickets);
+
+    // Detail Modal Close Handlers
+    detailModalCloseBtn.addEventListener('click', hideTicketDetail);
+
+    // Initial load
+    initializeFirebase();
+</script>
