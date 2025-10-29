@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎬 Real-Time Anime Edits Ticket System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        
         :root {
             --primary-color: #5d50f5; /* Anime/Future Purple */
             --secondary-color: #ff479d; /* Accent Pink */
@@ -13,11 +16,12 @@
             --text-color: #f0f0f0;
             --light-text: #c0c0c0;
             --border-color: #404066;
-            --font-stack: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-stack: 'Inter', sans-serif;
             --status-open: #4caf50;
             --status-progress: #ff9800;
             --status-done: #2196f3;
             --status-denied: #f44336;
+            --status-mock: #9c27b0; /* Purple for Mock */
         }
 
         /* Base & Typography */
@@ -31,8 +35,11 @@
             min-height: 100vh;
         }
 
-        h1, h2 {
+        h1, h2, h3 {
             color: var(--secondary-color);
+        }
+
+        h1 {
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 10px;
             margin-top: 0;
@@ -56,6 +63,7 @@
             text-transform: uppercase;
             font-weight: bold;
             margin-right: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .button:active {
@@ -82,8 +90,27 @@
             background-color: #ff6666;
         }
 
+        /* Mode Display */
+        #mode-display {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-left: 15px;
+            font-size: 0.85em;
+        }
+        .mode-cloud {
+            background-color: var(--status-done);
+            color: var(--bg-color);
+        }
+        .mode-mock {
+            background-color: var(--status-mock);
+            color: var(--text-color);
+        }
+
         /* Form Styling */
-        #submission-form {
+        #submission-form, #admin-controls {
             background-color: var(--card-bg);
             padding: 20px;
             border-radius: 8px;
@@ -120,25 +147,13 @@
             resize: vertical;
             min-height: 100px;
         }
-
-        #image-preview {
-            max-width: 100px;
-            max-height: 100px;
-            margin-top: 10px;
-            border-radius: 4px;
-            display: none;
-            object-fit: cover;
-        }
-
+        
         /* Admin & Management */
         #admin-controls {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background-color: #242438;
+             background-color: #242438;
+             border: 1px solid var(--border-color);
         }
-        
+
         #admin-info {
             display: flex;
             align-items: center;
@@ -152,18 +167,6 @@
 
         .admin-active #admin-status {
             color: var(--status-open);
-        }
-
-        #admin-tools {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid var(--border-color);
-        }
-        
-        .admin-tools-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
         }
 
         .hidden {
@@ -226,46 +229,6 @@
         .ticket-id {
             font-size: 0.8em;
             color: var(--light-text);
-        }
-
-        .ticket-title {
-            font-size: 1.2em;
-            color: var(--secondary-color);
-            margin: 5px 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .ticket-meta-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9em;
-            color: var(--light-text);
-            margin-bottom: 5px;
-        }
-
-        .ticket-description-snippet {
-            font-size: 0.9em;
-            color: var(--light-text);
-            margin-top: 10px;
-            flex-grow: 1;
-        }
-
-        .ticket-thumbnail-container {
-            width: 50px;
-            height: 50px;
-            border-radius: 4px;
-            overflow: hidden;
-            flex-shrink: 0;
-            margin-left: 10px;
-        }
-        
-        .ticket-thumbnail {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
         }
 
         .ticket-status {
@@ -341,54 +304,6 @@
             padding: 5px;
         }
 
-        .close-button:hover {
-            color: var(--secondary-color);
-        }
-
-        #detail-image {
-            max-width: 100%;
-            height: auto;
-            border-radius: 5px;
-            margin-top: 15px;
-        }
-
-        .detail-group {
-            margin-bottom: 10px;
-            display: flex;
-            gap: 10px;
-            align-items: baseline;
-        }
-
-        .detail-label {
-            font-weight: bold;
-            color: var(--secondary-color);
-            min-width: 100px;
-            flex-shrink: 0;
-        }
-        
-        /* Reply Styling */
-        .reply-item {
-            background-color: #38385e; /* Reply background */
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            position: relative;
-        }
-
-        .reply-meta {
-            font-size: 0.8em;
-            color: var(--secondary-color);
-            margin-bottom: 5px;
-            font-weight: bold;
-            border-bottom: 1px dashed var(--border-color);
-            padding-bottom: 3px;
-        }
-
-        .reply-text {
-            white-space: pre-wrap;
-            font-size: 0.95em;
-        }
-
         /* Message Box */
         #message-box {
             position: fixed;
@@ -455,7 +370,8 @@
     <header>
         <h1>🎬 Real-Time Anime Edits Channel Ticket System</h1>
         <p style="color: var(--light-text); font-style: italic;">
-            Data is saved to the cloud (Firebase) and synchronizes instantly across all your devices.
+            <span id="mode-status" class="mode-mock">Initializing...</span>
+            <span id="user-id-display" style="font-size: 0.85em; margin-left: 20px;">User ID: Loading...</span>
         </p>
     </header>
     
@@ -465,13 +381,12 @@
             <div id="admin-info">
                 <span id="admin-status">Not Admin</span>
                 <button id="admin-toggle-btn" class="button">Log In as Admin</button>
-                <span id="user-id-display" style="font-size: 0.8em;">User ID: Loading...</span>
             </div>
             <div id="admin-tools" class="hidden">
-                <hr>
-                <h3>Admin Tools</h3>
-                <p style="color: var(--status-denied);">
-                    Note: Import/Export/Clear are disabled in this cloud version to prevent data conflicts.
+                <hr style="border-color: var(--border-color); margin: 10px 0;">
+                <h3 style="color: var(--light-text); font-size: 1.1em;">Admin Tools</h3>
+                <p style="color: var(--status-denied); font-size: 0.9em;">
+                    Note: Import/Export/Clear are disabled in this collaborative environment.
                 </p>
             </div>
         </div>
@@ -509,7 +424,7 @@
             <div class="form-group">
                 <label for="image">Optional Image/Thumbnail (Base64):</label>
                 <input type="file" id="image" accept="image/*" aria-label="Optional Image Upload">
-                <img id="image-preview" src="#" alt="Image Preview">
+                <img id="image-preview" class="max-w-xs max-h-32 mt-2 rounded hidden" src="#" alt="Image Preview">
             </div>
             <button type="submit" class="button">Submit Ticket</button>
         </form>
@@ -567,56 +482,56 @@
     <div class="modal-content">
         <span class="close-button detail-close" aria-label="Close Modal">&times;</span>
         <h2 id="modal-title">Ticket Details</h2>
-        <div class="detail-group"><span class="detail-label">ID:</span> <span id="detail-id"></span></div>
-        <div class="detail-group"><span class="detail-label">Status:</span> <span id="detail-status" class="ticket-status"></span></div>
-        <div class="detail-group"><span class="detail-label">Title:</span> <span id="detail-title"></span></div>
-        <div class="detail-group"><span class="detail-label">Type:</span> <span id="detail-type"></span></div>
-        <div class="detail-group"><span class="detail-label">Submitter:</span> <span id="detail-submitter"></span></div>
-        <div class="detail-group"><span class="detail-label">Contact:</span> <a id="detail-contact" href="#" target="_blank" style="color: var(--secondary-color);"></a></div>
-        <div class="detail-group"><span class="detail-label">Submitted:</span> <span id="detail-date"></span></div>
+        <div class="grid grid-cols-2 gap-y-2 mt-4 text-sm">
+            <div class="detail-label text-secondary-color">ID:</div> <span id="detail-id"></span>
+            <div class="detail-label text-secondary-color">Status:</div> <span id="detail-status" class="ticket-status"></span>
+            <div class="detail-label text-secondary-color">Title:</div> <span id="detail-title"></span>
+            <div class="detail-label text-secondary-color">Type:</div> <span id="detail-type"></span>
+            <div class="detail-label text-secondary-color">Submitter:</div> <span id="detail-submitter"></span>
+            <div class="detail-label text-secondary-color">Contact:</div> <a id="detail-contact" href="#" target="_blank" style="color: var(--secondary-color);" class="truncate"></a>
+            <div class="detail-label text-secondary-color">Submitted:</div> <span id="detail-date"></span>
+        </div>
         
         <hr style="border-color: var(--border-color); margin: 15px 0;">
 
-        <h3>Full Description</h3>
-        <p id="detail-description" style="white-space: pre-wrap;"></p>
+        <h3 class="text-xl">Full Description</h3>
+        <p id="detail-description" class="whitespace-pre-wrap text-light-text"></p>
         
         <div id="detail-image-container" class="hidden">
-            <h3>Thumbnail Preview</h3>
-            <img id="detail-image" src="#" alt="Ticket Thumbnail">
+            <h3 class="text-xl mt-4">Thumbnail Preview</h3>
+            <img id="detail-image" class="max-w-full h-auto rounded mt-2" src="#" alt="Ticket Thumbnail">
         </div>
 
         <!-- Replies Section -->
         <div id="replies-section">
             <hr style="border-color: var(--border-color); margin: 15px 0;">
-            <h3 style="color: var(--status-done);">Admin Replies</h3>
-            <div id="detail-replies-list" style="max-height: 200px; overflow-y: auto; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; margin-bottom: 15px; background-color: #151525;">
-                <!-- Replies will be inserted here -->
-                <p id="no-replies-msg" style="color: var(--light-text); text-align: center;">No replies yet.</p>
+            <h3 class="text-lg" style="color: var(--status-done);">Admin Replies</h3>
+            <div id="detail-replies-list" class="max-h-48 overflow-y-auto p-2 border border-border-color rounded bg-bg-color text-sm mb-4">
+                <p id="no-replies-msg" class="text-light-text text-center">No replies yet.</p>
             </div>
 
             <!-- Admin Reply Form (Hidden until admin logs in) -->
             <div id="admin-reply-form-container" class="hidden">
-                <hr style="border-color: var(--border-color); margin: 15px 0;">
-                <h3 style="color: var(--primary-color);">Send a Reply</h3>
-                <textarea id="reply-input" placeholder="Type your reply here..." style="width: 100%; min-height: 80px; margin-bottom: 10px; padding: 10px; border-radius: 5px; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-color); box-sizing: border-box;"></textarea>
-                <button id="send-reply-btn" class="button secondary" style="width: 100%;">Send Reply</button>
+                <h3 class="text-lg" style="color: var(--primary-color);">Send a Reply</h3>
+                <textarea id="reply-input" placeholder="Type your reply here..." class="w-full min-h-[80px] p-2 rounded border border-border-color bg-bg-color text-text-color box-border mb-2"></textarea>
+                <button id="send-reply-btn" class="button secondary w-full">Send Reply</button>
             </div>
         </div>
         
         <!-- Admin-only controls in modal -->
         <div id="detail-admin-controls" class="hidden">
             <hr style="border-color: var(--border-color); margin: 15px 0;">
-            <h3>Admin Actions</h3>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                <label for="detail-status-change" class="hidden">Change Status</label>
-                <select id="detail-status-change" aria-label="Change Ticket Status" style="padding: 10px; flex-grow: 1; max-width: 150px;">
+            <h3 class="text-lg">Admin Actions</h3>
+            <div class="flex flex-wrap gap-2 items-center">
+                <label for="detail-status-change" class="text-light-text">Change Status:</label>
+                <select id="detail-status-change" aria-label="Change Ticket Status" class="p-2 flex-grow max-w-[150px] bg-bg-color text-text-color border border-border-color rounded">
                     <option value="Open">Open</option>
                     <option value="In Progress">In Progress</option>
                     <option value="Done">Done</option>
                     <option value="Denied">Denied</option>
                 </select>
-                <button id="detail-save-status-btn" class="button" style="flex-grow: 1;">Save Status</button>
-                <button id="detail-delete-btn" class="button danger" style="flex-grow: 1;">Delete Ticket</button>
+                <button id="detail-save-status-btn" class="button flex-grow">Save Status</button>
+                <button id="detail-delete-btn" class="button danger flex-grow">Delete Ticket</button>
             </div>
         </div>
     </div>
@@ -631,7 +546,7 @@
         <div class="form-group">
             <input type="password" id="password-input" placeholder="Password" aria-label="Admin Password" required>
         </div>
-        <button id="password-submit-btn" class="button" style="width: 100%;">Log In</button>
+        <button id="password-submit-btn" class="button w-full">Log In</button>
     </div>
 </div>
 
@@ -640,7 +555,7 @@
     <div class="modal-content small">
         <h2 id="confirm-title">Confirmation Required</h2>
         <p id="confirm-message"></p>
-        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <div class="flex justify-end gap-2 mt-4">
             <button id="confirm-cancel-btn" class="button secondary">Cancel</button>
             <button id="confirm-ok-btn" class="button danger">Confirm Action</button>
         </div>
@@ -649,32 +564,50 @@
 
 
 <script type="module">
+    // --- Firebase CDN Imports (Correct for single-file HTML app) ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, updateDoc, deleteDoc, onSnapshot, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 
     // --- Configuration & Initialization ---
     setLogLevel('Debug');
     const ADMIN_PASSWORD = 'anime'; 
     
+    // ====================================================================================================
+    // 🛑 IMPORTANT: YOUR PROJECT CONFIGURATION
+    // This configuration links your app to your 'alya-tickets' Firebase project.
+    // ====================================================================================================
+    
+    const CUSTOM_FIREBASE_CONFIG = {
+        apiKey: "AIzaSyC8DFm-Sx_EZvTSNugEqSRcza3EQkuLZh4",
+        authDomain: "alya-tickets.firebaseapp.com",
+        projectId: "alya-tickets",
+        storageBucket: "alya-tickets.firebasestorage.app",
+        messagingSenderId: "739623675279",
+        appId: "1:739623675279:web:42262f1ddc5156fd3417fa" // measurementId omitted as not used by core logic
+    };
+
     // Global Firebase Variables (MUST BE USED)
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-    // Ensure we handle potential stringification/parsing issues
+    // Check if running in a specialized environment or use a fallback.
+    // When running publicly (no __app_id), this uses your projectId for the public data path.
+    const PUBLIC_PATH_ID_FALLBACK = "alya-tickets"; 
+    const appId = typeof __app_id !== 'undefined' ? __app_id : PUBLIC_PATH_ID_FALLBACK;
     let firebaseConfig = {};
-    try {
-        firebaseConfig = typeof __firebase_config !== 'undefined' && __firebase_config ? JSON.parse(__firebase_config) : {};
-    } catch (e) {
-        console.error("Error parsing __firebase_config:", e);
-        // firebaseConfig remains {}
-    }
     const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
     let db, auth;
     let userId = null;
     let isAdmin = false;
-    let currentTicketId = null; // Stores the ID of the ticket currently open in the modal
+    let currentTicketId = null; 
     let globalConfirmCallback = null;
+    let isMockMode = false; // Flag to track mode
+    window.ticketsCache = []; // Cache for real-time data
+    
+    // In-memory mock database
+    window.mockDatabase = [];
+    let mockIdCounter = 0;
+
 
     // --- DOM Elements ---
     const form = document.getElementById('submission-form');
@@ -682,21 +615,11 @@
     const imagePreview = document.getElementById('image-preview');
     const ticketList = document.getElementById('ticket-list');
     const noTicketsMessage = document.getElementById('no-tickets-message');
-    
-    // Admin
-    const adminSection = document.getElementById('admin-section'); // Fixed: defined missing element
     const adminToggleBtn = document.getElementById('admin-toggle-btn');
     const adminStatusSpan = document.getElementById('admin-status');
     const adminTools = document.getElementById('admin-tools');
     const userIdDisplay = document.getElementById('user-id-display');
-    
-    // Filters/Sort
-    const filterStatusSelect = document.getElementById('filter-status');
-    const filterTypeSelect = document.getElementById('filter-type');
-    const sortBySelect = document.getElementById('sort-by');
-    const searchInput = document.getElementById('search-query');
-
-    // Modal
+    const modeStatusSpan = document.getElementById('mode-status');
     const detailModal = document.getElementById('ticket-detail-modal');
     const detailModalCloseBtn = detailModal.querySelector('.detail-close');
     const detailAdminControls = document.getElementById('detail-admin-controls');
@@ -705,8 +628,6 @@
     const replyInput = document.getElementById('reply-input');
     const sendReplyBtn = document.getElementById('send-reply-btn');
     const adminReplyFormContainer = document.getElementById('admin-reply-form-container');
-    
-    // Password & Confirmation Modal elements (omitted for brevity, assume they exist)
     const passwordModal = document.getElementById('password-modal');
     const passwordInput = document.getElementById('password-input');
     const passwordSubmitBtn = document.getElementById('password-submit-btn');
@@ -715,38 +636,74 @@
     const confirmOkBtn = document.getElementById('confirm-ok-btn');
     const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
     const messageBox = document.getElementById('message-box');
+    const filterStatusSelect = document.getElementById('filter-status');
+    const filterTypeSelect = document.getElementById('filter-type');
+    const sortBySelect = document.getElementById('sort-by');
+    const searchInput = document.getElementById('search-query');
     let messageTimer = null;
 
 
-    // --- Core Firebase Setup ---
-
+    // --- Core Database Setup & Initialization ---
+    // The collection path uses the project/app ID for data isolation:
+    // /artifacts/alya-tickets/public/data/tickets
     const TICKET_COLLECTION_PATH = `artifacts/${appId}/public/data/tickets`;
 
     async function initializeFirebase() {
-        // Check for essential config before initialization
-        if (!firebaseConfig || !firebaseConfig.apiKey || !firebaseConfig.projectId) {
-            console.error("Firebase Initialization Error: Configuration is missing API Key or Project ID.", firebaseConfig);
-            showMessage("Database config missing. Cannot connect to Firebase.", 'danger');
-            noTicketsMessage.textContent = 'ERROR: Firebase configuration missing required credentials.';
-            return; 
+        // --- STEP 1: Determine Configuration Source ---
+        let rawConfig = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
+        
+        try {
+            if (rawConfig) {
+                // Case A: Running in a Canvas-style environment (Priority 1)
+                firebaseConfig = JSON.parse(rawConfig);
+                console.debug("✅ Firebase Config loaded from environment (Canvas).");
+            } else if (CUSTOM_FIREBASE_CONFIG.apiKey && CUSTOM_FIREBASE_CONFIG.projectId) {
+                // Case B: Running on a custom website with hardcoded config (Priority 2)
+                firebaseConfig = CUSTOM_FIREBASE_CONFIG;
+                console.debug("✅ Firebase Config loaded from hardcoded CUSTOM_FIREBASE_CONFIG.");
+            } else {
+                 // Case C: No config found
+                throw new Error("No valid Firebase configuration found in environment or hardcoded settings.");
+            }
+        } catch (e) {
+            // --- STEP 4: Fallback to MOCK MODE ---
+            console.error("❌ CRITICAL CONFIGURATION ERROR:", e.message);
+            console.warn("⚠️ Switching to MOCK MODE due to configuration failure.");
+            
+            isMockMode = true;
+            updateModeDisplay('MOCK MODE (Data will be lost on refresh)', 'mode-mock');
+            userId = crypto.randomUUID();
+            userIdDisplay.textContent = `User ID: ${userId.substring(0, 8)}...`;
+            setupMockListener(); 
+            showMessage("Database config failed. Switched to MOCK MODE.", 'danger');
+            return;
         }
+
+        // --- STEP 3: CLOUD MODE INITIALIZATION (Common for both A and B) ---
+        const isConfigValid = firebaseConfig && firebaseConfig.apiKey && firebaseConfig.projectId;
+        
+        if (!isConfigValid) {
+            throw new Error("Parsed Firebase Config is structurally invalid (missing apiKey or projectId).");
+        }
+        
+        isMockMode = false;
+        updateModeDisplay('CLOUD MODE (Data is persistent via Firebase)', 'mode-cloud');
+        noTicketsMessage.textContent = 'Loading tickets from Firebase...';
 
         try {
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
             
-            // Authentication
+            // Authentication Logic: Use special token if available (Canvas), otherwise sign in anonymously (Public website)
             const signInAttempt = initialAuthToken 
                 ? signInWithCustomToken(auth, initialAuthToken)
                 : signInAnonymously(auth);
 
             await signInAttempt.catch(authError => {
-                console.warn("Initial authentication failed, attempting anonymous fallback...", authError);
-                // Even if custom token fails, onAuthStateChanged should catch anonymous sign-in if it succeeded.
-                return signInAnonymously(auth);
+                console.warn("Authentication failed (Custom or Anonymous). Re-attempting anonymous sign-in...", authError);
+                return signInAnonymously(auth); // Final fallback if initial anonymous sign-in also fails
             });
-
 
             onAuthStateChanged(auth, (user) => {
                 if (user) {
@@ -756,18 +713,23 @@
                 } else {
                     userId = null;
                     userIdDisplay.textContent = 'User ID: N/A';
-                    noTicketsMessage.textContent = 'Please wait for authentication...';
+                    noTicketsMessage.textContent = 'Waiting for authentication...';
                 }
             });
 
         } catch (error) {
-            console.error("Firebase Initialization Error (App or Firestore):", error);
+            console.error("❌ Firebase SDK Initialization Error (Check Network/Permissions):", error);
             showMessage("Failed to connect to the database. Check console for details.", 'danger');
             noTicketsMessage.textContent = 'ERROR: Database connection failed. See console.';
         }
     }
     
-    // --- Helper Functions ---
+    function updateModeDisplay(text, className) {
+        modeStatusSpan.textContent = text;
+        modeStatusSpan.className = className;
+    }
+    
+    // --- Helper Functions (Messages, Confirmation, Truncation) ---
 
     function showMessage(text, type = 'primary') {
         clearTimeout(messageTimer);
@@ -802,35 +764,24 @@
 
     function toggleAdminMode(enable) {
         isAdmin = enable;
-        if (!isAdmin && auth.currentUser) {
-            // Clear any admin-specific data or flags if needed
-        }
-        adminSection.classList.toggle('admin-active', isAdmin);
         adminStatusSpan.textContent = isAdmin ? 'ADMIN MODE ACTIVE' : 'Not Admin';
         adminToggleBtn.textContent = isAdmin ? 'Log Out Admin' : 'Log In as Admin';
+        document.getElementById('admin-section').classList.toggle('admin-active', isAdmin);
         adminTools.classList.toggle('hidden', !isAdmin);
         
-        // If the detail modal is open, re-render controls
+        // Re-render tickets to show admin actions in detail modal if open
+        const currentTickets = window.ticketsCache || window.mockDatabase || [];
         if (detailModal.classList.contains('visible') && currentTicketId) {
-            const currentTickets = window.ticketsCache || [];
-            const ticket = currentTickets.find(t => t.id === currentTicketId);
-            if (ticket) showTicketDetail(ticket); // Re-show to update controls
+            // Find the ticket by its short display ID (currentTicketId) and then find the full data
+            const ticket = currentTickets.find(t => t.id === currentTicketId); 
+            if (ticket) showTicketDetail(ticket); 
         }
-    }
-
-    async function handleAdminLogout() {
-        try {
-            await signOut(auth);
-        } catch (error) {
-            console.error("Logout failed:", error);
-        }
-        toggleAdminMode(false);
-        showMessage('Admin mode deactivated.', 'success');
     }
 
     function checkAdminPassword() {
         if (isAdmin) {
-            handleAdminLogout();
+            toggleAdminMode(false);
+            showMessage('Admin mode deactivated.', 'success');
             return;
         }
         passwordInput.value = '';
@@ -850,116 +801,204 @@
         }
     }
     
-    // --- Firestore Operations ---
+    // ------------------------------------
+    // --- MOCK MODE DATA IMPLEMENTATION ---
+    // ------------------------------------
 
-    // Function to submit a new ticket
-    async function submitNewTicket(ticketData) {
-        if (!userId) return showMessage('User not authenticated. Please wait.', 'danger');
+    function setupMockListener() {
+        // Poll to simulate real-time updates for mock data
+        function poll() {
+            window.ticketsCache = [...window.mockDatabase]; 
+            renderTickets();
+            
+            // Check if detail modal needs a refresh
+            if (detailModal.classList.contains('visible') && currentTicketId) {
+                const ticket = window.mockDatabase.find(t => t.id === currentTicketId);
+                if (ticket) {
+                    showTicketDetail(ticket); 
+                } else {
+                    hideTicketDetail();
+                }
+            }
+
+            setTimeout(poll, 500); 
+        }
+        poll();
+        noTicketsMessage.textContent = window.mockDatabase.length === 0 ? 'No tickets submitted yet.' : 'Ready.';
+    }
+
+    function submitNewTicketMock(ticketData) {
+        // docId will store the array index + mock tag
+        const docId = 'mock-' + (++mockIdCounter);
+        // id will store the display ID
+        const id = crypto.randomUUID().substring(0, 4).toUpperCase();
+        const newTicket = { 
+            ...ticketData, 
+            docId: docId, 
+            id: id,
+        };
+        window.mockDatabase.push(newTicket);
+        showMessage(`Ticket submitted successfully (Mock Mode)! ID: #${id}`, 'success');
+        form.reset();
+        imagePreview.src = '#';
+        imagePreview.classList.add('hidden');
+    }
+
+    function updateTicketMock(docId, updateData) {
+        const index = window.mockDatabase.findIndex(t => t.docId === docId);
+        if (index !== -1) {
+            window.mockDatabase[index] = { ...window.mockDatabase[index], ...updateData };
+            showMessage(`Ticket updated (Mock Mode).`, 'success');
+        }
+    }
+    
+    function deleteTicketMock(docId) {
+        window.mockDatabase = window.mockDatabase.filter(t => t.docId !== docId);
+        showMessage(`Ticket deleted (Mock Mode).`, 'success');
+    }
+    
+    // ------------------------------------
+    // --- FIRESTORE OPERATIONS (Cloud Mode) ---
+    // ------------------------------------
+
+    async function submitNewTicketCloud(ticketData) {
         try {
             const ticketsCol = collection(db, TICKET_COLLECTION_PATH);
-            await addDoc(ticketsCol, ticketData);
-            showMessage(`Ticket submitted successfully!`, 'success');
+            const docRef = await addDoc(ticketsCol, ticketData);
+            // After submission, update the document with its short ID for display purposes
+            await updateDoc(docRef, { id: docRef.id.substring(0, 4).toUpperCase() });
+
+            showMessage(`Ticket submitted successfully! ID: #${docRef.id.substring(0, 4).toUpperCase()}`, 'success');
             form.reset();
-            imagePreview.style.display = 'none';
+            imagePreview.src = '#';
+            imagePreview.classList.add('hidden');
         } catch (e) {
             console.error("Error submitting ticket:", e);
             showMessage("Failed to submit ticket. See console for details.", 'danger');
         }
     }
 
-    // Function to update ticket status
-    async function updateTicketStatus(docId, newStatus) {
-        if (!isAdmin) return showMessage('Permission denied.', 'danger');
+    async function updateTicketCloud(docId, updateData) {
         try {
             const ticketRef = doc(db, TICKET_COLLECTION_PATH, docId);
-            await updateDoc(ticketRef, { status: newStatus });
-            showMessage(`Ticket status updated to ${newStatus}.`, 'success');
+            await updateDoc(ticketRef, updateData);
+            showMessage(`Ticket updated.`, 'success');
         } catch (e) {
             console.error("Error updating status:", e);
-            showMessage("Failed to update status.", 'danger');
+            showMessage("Failed to update ticket.", 'danger');
         }
     }
 
-    // Function to delete a ticket
-    async function deleteTicket(docId) {
-        if (!isAdmin) return showMessage('Permission denied.', 'danger');
-        customConfirm(`Are you sure you want to permanently delete Ticket ID: ${docId}?`, async () => {
-            try {
-                const ticketRef = doc(db, TICKET_COLLECTION_PATH, docId);
-                await deleteDoc(ticketRef);
-                hideTicketDetail();
-                showMessage(`Ticket deleted.`, 'success');
-            } catch (e) {
-                console.error("Error deleting ticket:", e);
-                showMessage("Failed to delete ticket.", 'danger');
-            }
-        });
-    }
-
-    // Function to add a reply (Admin only)
-    async function addReplyToTicket(docId) {
-        if (!isAdmin) return showMessage('Permission denied.', 'danger');
-        const replyText = replyInput.value.trim();
-        if (replyText.length === 0) return showMessage('Reply cannot be empty.', 'primary');
-
+    async function deleteTicketCloud(docId) {
         try {
             const ticketRef = doc(db, TICKET_COLLECTION_PATH, docId);
-            
-            // Get the current ticket data to append the reply
+            await deleteDoc(ticketRef);
+            hideTicketDetail();
+            showMessage(`Ticket deleted.`, 'success');
+        } catch (e) {
+            console.error("Error deleting ticket:", e);
+            showMessage("Failed to delete ticket.", 'danger');
+        }
+    }
+    
+    async function addReplyToTicketCloud(docId, newReply) {
+        try {
+            const ticketRef = doc(db, TICKET_COLLECTION_PATH, docId);
             const currentTickets = window.ticketsCache || [];
+            // Find the ticket in the cache by its docId to get the current replies array
             const ticket = currentTickets.find(t => t.docId === docId);
 
-            if (ticket) {
-                 const newReply = {
-                    timestamp: new Date().toISOString(),
-                    text: replyText
-                };
-                
-                const updatedReplies = Array.isArray(ticket.replies) ? [...ticket.replies, newReply] : [newReply];
+            if (!ticket) return showMessage('Error: Ticket not found.', 'danger');
 
-                await updateDoc(ticketRef, { replies: updatedReplies });
-                
-                replyInput.value = '';
-                showMessage(`Reply sent.`, 'success');
-                // The onSnapshot listener will re-render the modal with the new reply
-            } else {
-                 showMessage('Error: Ticket not found in cache.', 'danger');
-            }
-
+            const updatedReplies = Array.isArray(ticket.replies) ? [...ticket.replies, newReply] : [newReply];
+            await updateDoc(ticketRef, { replies: updatedReplies });
+            showMessage('Reply sent.', 'success');
         } catch (e) {
             console.error("Error adding reply:", e);
             showMessage("Failed to send reply.", 'danger');
         }
     }
+    
+    // ------------------------------------
+    // --- DATA WRAPPERS (Uses Mock or Cloud) ---
+    // ------------------------------------
 
-    // --- Real-Time Listener (Main Data Loop) ---
+    async function submitNewTicket(ticketData) {
+        if (!db && !isMockMode) return showMessage('Database is not ready. Please wait.', 'danger');
+        // Ensure to use the correct appId in the public pathing when running outside the environment
+        const finalTicketData = { ...ticketData, appId: appId };
+        return isMockMode ? submitNewTicketMock(finalTicketData) : submitNewTicketCloud(finalTicketData);
+    }
+    
+    async function updateTicketStatus(docId, newStatus) {
+        if (!isAdmin) return showMessage('Permission denied.', 'danger');
+        const updateData = { status: newStatus };
+        return isMockMode ? updateTicketMock(docId, updateData) : updateTicketCloud(docId, updateData);
+    }
+
+    async function deleteTicket(docId) {
+        if (!isAdmin) return showMessage('Permission denied.', 'danger');
+        customConfirm(`Are you sure you want to permanently delete Ticket ID: ${docId}?`, async () => {
+            if (isMockMode) {
+                deleteTicketMock(docId);
+            } else {
+                await deleteTicketCloud(docId);
+            }
+        });
+    }
+
+    async function addReplyToTicket(docId) {
+        if (!isAdmin) return showMessage('Permission denied.', 'danger');
+        const replyText = replyInput.value.trim();
+        if (replyText.length === 0) return showMessage('Reply cannot be empty.', 'primary');
+
+        const currentTickets = window.ticketsCache || window.mockDatabase || [];
+        const ticket = currentTickets.find(t => t.docId === docId);
+
+        if (!ticket) return showMessage('Error: Ticket not found.', 'danger');
+
+        const newReply = {
+            timestamp: new Date().toISOString(),
+            text: replyText
+        };
+        
+        replyInput.value = ''; // Clear input immediately
+        
+        if (isMockMode) {
+            const updatedReplies = Array.isArray(ticket.replies) ? [...ticket.replies, newReply] : [newReply];
+            updateTicketMock(docId, { replies: updatedReplies });
+        } else {
+             await addReplyToTicketCloud(docId, newReply);
+        }
+    }
+
+    // --- Real-Time Listener (Cloud Mode) ---
 
     function setupRealTimeListener() {
         if (!db) return;
         const ticketsCollection = collection(db, TICKET_COLLECTION_PATH);
         
-        // Since we cannot use orderBy on the collection due to potential index issues,
-        // we fetch all and sort in the client.
-        const q = ticketsCollection; 
-
-        onSnapshot(q, (snapshot) => {
+        // Use onSnapshot to listen for real-time changes
+        onSnapshot(ticketsCollection, (snapshot) => {
             const tickets = snapshot.docs.map(doc => ({
-                id: doc.id.substring(0, 4).toUpperCase(), // Use first 4 chars of doc ID as public ID
-                docId: doc.id, // Store full document ID for Firestore operations
+                // docId is the actual Firestore document ID (used for CRUD operations)
+                docId: doc.id, 
+                // id is the short, display ID (used for UI tracking)
+                id: doc.data().id || doc.id.substring(0, 4).toUpperCase(), 
                 ...doc.data()
             }));
 
-            // Store the raw tickets for filtering/sorting and modal lookup
             window.ticketsCache = tickets;
             renderTickets(); 
             
-            // If modal is open, update its content (including replies)
+            // Auto-refresh detail modal if open
             if (detailModal.classList.contains('visible') && currentTicketId) {
-                const ticket = tickets.find(t => t.id === currentTicketId);
+                // Find the ticket by its short display ID (currentTicketId)
+                const ticket = tickets.find(t => t.id === currentTicketId); 
                 if (ticket) {
                     showTicketDetail(ticket); 
                 } else {
-                    hideTicketDetail(); // Ticket was deleted
+                    hideTicketDetail();
                 }
             }
         }, (error) => {
@@ -971,43 +1010,40 @@
 
 
     // --- Render and Display Functions ---
-
     function createTicketCard(ticket) {
         const card = document.createElement('div');
         card.className = 'ticket-card';
-        card.setAttribute('data-id', ticket.docId);
+        card.setAttribute('data-doc-id', ticket.docId);
         card.innerHTML = `
             <div>
                 <div class="ticket-header">
                     <span class="ticket-id">ID: #${ticket.id}</span>
                     <span class="ticket-status status-${ticket.status.replace(/\s/g, '')}">${ticket.status}</span>
                 </div>
-                <h3 class="ticket-title" title="${ticket.title}">${ticket.title}</h3>
-                <div class="ticket-meta-line">
-                    <span>Submitter: <strong>${ticket.name}</strong></span>
-                    <span>Type: ${ticket.type}</span>
-                </div>
-                <div class="ticket-meta-line">
-                    <span>Date: ${new Date(ticket.date).toLocaleDateString()}</span>
+                <h3 class="ticket-title font-semibold text-lg" title="${ticket.title}">${truncateText(ticket.title, 30)}</h3>
+                <div class="text-sm text-light-text mt-2">
+                    <p>Submitter: <strong class="text-text-color">${truncateText(ticket.name, 20)}</strong></p>
+                    <p>Type: ${ticket.type}</p>
                 </div>
             </div>
-            <div style="display: flex; align-items: flex-start; margin-top: 10px;">
-                <p class="ticket-description-snippet">${truncateText(ticket.description, 80)}</p>
-                ${ticket.image ? `<div class="ticket-thumbnail-container"><img class="ticket-thumbnail" src="${ticket.image}" alt="Thumbnail"></div>` : ''}
+            <div class="flex justify-between items-end mt-2">
+                <p class="text-xs text-light-text">${new Date(ticket.date).toLocaleDateString()}</p>
+                ${ticket.image ? `<div class="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" src="${ticket.image}" alt="Thumbnail"></div>` : ''}
             </div>
         `;
         
         card.addEventListener('click', () => {
-            currentTicketId = ticket.id; // Set ID before showing
-            showTicketDetail(ticket);
+            currentTicketId = ticket.id; 
+            // Find the full ticket data in the cache using docId
+            const ticketData = (window.ticketsCache || window.mockDatabase || []).find(t => t.docId === ticket.docId);
+            if(ticketData) showTicketDetail(ticketData);
         });
         return card;
     }
 
     function renderTickets() {
-        const tickets = window.ticketsCache || [];
+        const tickets = window.ticketsCache || window.mockDatabase || []; 
         
-        // 1. Filtering & Searching
         const statusFilter = filterStatusSelect.value;
         const typeFilter = filterTypeSelect.value;
         const searchQuery = searchInput.value.toLowerCase();
@@ -1022,11 +1058,14 @@
             return statusMatch && typeMatch && searchMatch;
         });
 
-        // 2. Sorting (Client-side)
         const sortBy = sortBySelect.value;
         filteredTickets.sort((a, b) => {
-            if (sortBy === 'newest') return new Date(b.date) - new Date(a.date);
-            if (sortBy === 'oldest') return new Date(a.date) - new Date(b.date);
+            // Ensure date is treated as a number for sorting
+            const dateA = new Date(a.date).getTime();
+            const dateB = new Date(b.date).getTime();
+
+            if (sortBy === 'newest') return dateB - dateA;
+            if (sortBy === 'oldest') return dateA - dateB;
             if (sortBy === 'status') {
                 const statusOrder = { 'Open': 1, 'In Progress': 2, 'Done': 3, 'Denied': 4 };
                 return statusOrder[a.status] - statusOrder[b.status];
@@ -1034,11 +1073,12 @@
             return 0;
         });
 
-        // 3. Rendering
         ticketList.innerHTML = '';
         if (filteredTickets.length === 0) {
             noTicketsMessage.style.display = 'block';
-            noTicketsMessage.textContent = 'No tickets found matching your criteria.';
+            noTicketsMessage.textContent = tickets.length === 0 
+                ? (isMockMode ? 'No tickets in mock database.' : 'Database is connected but empty.')
+                : 'No tickets found matching your current filter/search.';
         } else {
             noTicketsMessage.style.display = 'none';
             filteredTickets.forEach(ticket => {
@@ -1052,28 +1092,28 @@
         const replies = ticket.replies || [];
         noRepliesMsg.style.display = replies.length === 0 ? 'block' : 'none';
 
+        replies.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
         replies.forEach(reply => {
             const replyDiv = document.createElement('div');
-            replyDiv.className = 'reply-item';
+            replyDiv.className = 'reply-item p-3 rounded-lg my-2 bg-[#38385e] text-sm';
             replyDiv.innerHTML = `
-                <div class="reply-meta">
+                <div class="text-xs font-bold text-secondary-color mb-1 border-b border-dashed border-border-color pb-1">
                     Admin @ ${new Date(reply.timestamp).toLocaleString()}
                 </div>
-                <p class="reply-text">${reply.text}</p>
+                <p class="whitespace-pre-wrap">${reply.text}</p>
             `;
             detailRepliesList.appendChild(replyDiv);
         });
         
-        // Scroll to bottom of the replies list
         detailRepliesList.scrollTop = detailRepliesList.scrollHeight;
     }
 
     function showTicketDetail(ticket) {
-        // Set the currently viewed ticket ID (used for re-rendering during real-time updates)
-        currentTicketId = ticket.id; 
+        currentTicketId = ticket.id; // Store the display ID for modal refresh checks
 
-        // Populate modal with ticket data
-        document.getElementById('detail-id').textContent = ticket.id;
+        document.getElementById('modal-title').textContent = `Ticket Details - #${ticket.id}`;
+        document.getElementById('detail-id').textContent = `#${ticket.id}`;
         document.getElementById('detail-title').textContent = ticket.title;
         document.getElementById('detail-type').textContent = ticket.type;
         document.getElementById('detail-submitter').textContent = ticket.name;
@@ -1099,10 +1139,8 @@
             imageElement.src = '#';
         }
 
-        // RENDER REPLIES
         renderReplies(ticket);
 
-        // Show/Hide Admin Controls and Reply Form
         if (isAdmin) {
             detailAdminControls.classList.remove('hidden');
             adminReplyFormContainer.classList.remove('hidden');
@@ -1110,7 +1148,7 @@
             const statusSelect = document.getElementById('detail-status-change');
             statusSelect.value = ticket.status;
             
-            // Update button handlers for the current ticket's document ID (docId)
+            // Pass the docId for the update and delete functions
             document.getElementById('detail-save-status-btn').onclick = () => updateTicketStatus(ticket.docId, statusSelect.value);
             document.getElementById('detail-delete-btn').onclick = () => deleteTicket(ticket.docId);
             sendReplyBtn.onclick = () => addReplyToTicket(ticket.docId);
@@ -1125,17 +1163,26 @@
 
     function hideTicketDetail() {
         detailModal.classList.remove('visible');
-        currentTicketId = null; // Clear the context
-        replyInput.value = ''; // Clear reply box
+        currentTicketId = null; 
+        replyInput.value = ''; 
     }
 
     // --- Form Submission & Event Listeners ---
 
     function fileToDataUrl(file) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             if (!file) return resolve(null);
+            
+            // Limit file size to 1MB (1024 * 1024 bytes) for base64
+            const MAX_SIZE = 1048576; 
+            if (file.size > MAX_SIZE) {
+                showMessage("Image file size exceeds 1MB. Please choose a smaller image.", 'danger');
+                return reject(new Error("File too large"));
+            }
+            
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
             reader.readAsDataURL(file);
         });
     }
@@ -1143,7 +1190,13 @@
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const imageBase64 = await fileToDataUrl(imageInput.files[0]);
+        let imageBase64 = null;
+        try {
+             imageBase64 = await fileToDataUrl(imageInput.files[0]);
+        } catch (e) {
+            console.error("Image processing error:", e);
+            return; // Stop submission if image fails
+        }
 
         const newTicket = {
             name: document.getElementById('name').value,
@@ -1161,31 +1214,29 @@
         await submitNewTicket(newTicket);
     });
 
-    imageInput.addEventListener('change', (e) => {
+    imageInput.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                imagePreview.src = e.target.result;
-                imagePreview.style.display = 'block';
-            };
-            reader.readAsDataURL(file);
+            try {
+                const dataUrl = await fileToDataUrl(file);
+                imagePreview.src = dataUrl;
+                imagePreview.classList.remove('hidden');
+            } catch (e) {
+                imageInput.value = ''; // Clear input on error
+                imagePreview.classList.add('hidden');
+            }
         } else {
-            imagePreview.style.display = 'none';
+            imagePreview.classList.add('hidden');
         }
     });
 
-    // Admin Button Handlers
     adminToggleBtn.addEventListener('click', checkAdminPassword);
-
-    // Password Modal Handlers
     passwordSubmitBtn.addEventListener('click', handlePasswordSubmit);
     passwordInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') handlePasswordSubmit();
     });
     document.querySelector('.password-close').addEventListener('click', () => passwordModal.classList.remove('visible'));
     
-    // Confirmation Modal Handlers
     confirmOkBtn.addEventListener('click', () => {
         confirmModal.classList.remove('visible');
         if (globalConfirmCallback) globalConfirmCallback();
@@ -1194,15 +1245,15 @@
         confirmModal.classList.remove('visible');
         showMessage('Action cancelled.', 'primary');
     });
+    detailModalCloseBtn.addEventListener('click', hideTicketDetail);
 
-    // Filter/Sort/Search Handlers (Trigger client-side rendering with cached data)
+
+    // --- Filtering and Sorting Events ---
     filterStatusSelect.addEventListener('change', renderTickets);
     filterTypeSelect.addEventListener('change', renderTickets);
     sortBySelect.addEventListener('change', renderTickets);
     searchInput.addEventListener('input', renderTickets);
 
-    // Detail Modal Close Handlers
-    detailModalCloseBtn.addEventListener('click', hideTicketDetail);
 
     // Initial load
     initializeFirebase();
